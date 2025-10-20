@@ -9,7 +9,7 @@ function isPalindrome(string) {
   // Приводим строку к нижнему регистру и удаляем пробелы
   const cleanString = string.toLowerCase().replaceAll(' ', '');
 
-  // Сравниваем строку с перевернутой версией
+  // Сравниваем строку с перевернутой версие
   return cleanString === cleanString.split('').reverse().join('');
 }
 
