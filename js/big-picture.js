@@ -84,8 +84,6 @@ const onCommentsLoaderClick = () => {
   renderNextComments();
 };
 
-
-
 /**
  * Закрывает окно полноразмерного просмотра
  */
@@ -101,6 +99,7 @@ export const closeBigPicture = () => {
     document.removeEventListener('keydown', onDocumentKeydown);
     onDocumentKeydown = null;
   }
+
   if (closeButton) {
     closeButton.removeEventListener('click', closeBigPicture);
   }
@@ -115,7 +114,6 @@ export const closeBigPicture = () => {
   socialComments.innerHTML = '';
 };
 
-
 /**
  * Открывает окно полноразмерного просмотра с данными photo
  * @param {Object} photo
@@ -126,12 +124,15 @@ export const closeBigPicture = () => {
  * @param {Array} photo.comments
  */
 export const openBigPicture = (photo, thumbnailElement) => {
-  if (!photo) return;
+  if (!photo) {
+    return;
+  }
 
   // --- подсветка миниатюры ---
   if (activeThumbnail) {
     activeThumbnail.classList.remove('picture--active');
   }
+
   activeThumbnail = thumbnailElement;
   activeThumbnail.classList.add('picture--active');
 
@@ -158,7 +159,6 @@ export const openBigPicture = (photo, thumbnailElement) => {
     commentsLoader.classList.add('hidden');
   }
 
-
   commentsLoader.addEventListener('click', onCommentsLoaderClick);
 
   // Показать окно
@@ -172,6 +172,7 @@ export const openBigPicture = (photo, thumbnailElement) => {
       closeBigPicture();
     }
   };
+
   document.addEventListener('keydown', onDocumentKeydown);
 
   // Закрытие по кнопке
@@ -179,5 +180,3 @@ export const openBigPicture = (photo, thumbnailElement) => {
     closeButton.addEventListener('click', closeBigPicture);
   }
 };
-
-
