@@ -16,6 +16,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const descriptionInput = form.querySelector('.text__description');
   const submitButton = form.querySelector('#upload-submit');
 
+  // Функция для скрытия формы редактирования
+  const hideEditForm = () => {
+    uploadOverlay.classList.add('hidden');
+    body.classList.remove('modal-open');
+    document.removeEventListener('keydown', onDocumentKeydown);
+    form.reset();
+  };
+
   // Обработчик закрытия по Esc
   const onDocumentKeydown = (evt) => {
     if (evt.key === 'Escape' && !evt.target.matches('.text__hashtags, .text__description')) {
@@ -29,14 +37,6 @@ document.addEventListener('DOMContentLoaded', () => {
     uploadOverlay.classList.remove('hidden');
     body.classList.add('modal-open');
     document.addEventListener('keydown', onDocumentKeydown);
-  };
-
-  // Функция для скрытия формы редактирования
-  const hideEditForm = () => {
-    uploadOverlay.classList.add('hidden');
-    body.classList.remove('modal-open');
-    document.removeEventListener('keydown', onDocumentKeydown);
-    form.reset();
   };
 
   // Валидация хэш-тегов
