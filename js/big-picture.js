@@ -40,6 +40,50 @@ const createCommentElement = (comment) => {
 let onDocumentKeydown;
 let activeThumbnail = null;
 
+// -------------------------
+// Пагинация комментариев
+// -------------------------
+const COMMENTS_PORTION = 5;
+let commentsToShow = [];
+let renderedCommentsCount = 0;
+
+// Функция отрисовки следующей порции
+const renderNextComments = () => {
+  const next = commentsToShow.slice(
+    renderedCommentsCount,
+    renderedCommentsCount + COMMENTS_PORTION
+  );
+
+  const fragment = document.createDocumentFragment();
+
+  next.forEach((c) => {
+    const commentData = {
+      avatar: c.avatar || c.avatarUrl || '',
+      name: c.name || c.author || 'Пользователь',
+      message: c.message || c.text || ''
+    };
+    fragment.appendChild(createCommentElement(commentData));
+  });
+
+  socialComments.appendChild(fragment);
+
+  renderedCommentsCount += next.length;
+
+  // Обновление счётчика
+  commentCountBlock.innerHTML =
+  `<span class="count-badge">Вы лицезреете ${renderedCommentsCount} из ${commentsToShow.length} комментариев</span>`;
+
+  // Скрыть кнопку, если комментарии закончились
+  if (renderedCommentsCount >= commentsToShow.length) {
+    commentsLoader.classList.add('hidden');
+  }
+};
+
+// Обработчик клика "Загрузить ещё"
+const onCommentsLoaderClick = () => {
+  renderNextComments();
+};
+
 /**
  * Открывает окно полноразмерного просмотра с данными photo
  * @param {Object} photo
@@ -47,10 +91,11 @@ let activeThumbnail = null;
  * @param {string} photo.url
  * @param {string} photo.description
  * @param {number} photo.likes
- * @param {Array} photo.comments  — массив объектов {id, avatar, message, name}
+ * @param {Array} photo.comments
  */
 export const openBigPicture = (photo, thumbnailElement) => {
   if (!photo) return;
+
   // --- подсветка миниатюры ---
   if (activeThumbnail) {
     activeThumbnail.classList.remove('picture--active');
@@ -58,40 +103,36 @@ export const openBigPicture = (photo, thumbnailElement) => {
   activeThumbnail = thumbnailElement;
   activeThumbnail.classList.add('picture--active');
 
-
-
-  // Заполняем данные
+  // Заполняем данные изображения
   bigPictureImg.src = photo.url;
   bigPictureImg.alt = photo.description || 'Фотография';
   likesCount.textContent = String(photo.likes);
   commentsCount.textContent = String(photo.comments.length);
   socialCaption.textContent = photo.description || '';
 
-  // Очищаем старые комментарии и вставляем новые
+  // Показываем блоки счётчика и кнопки
+  commentCountBlock.classList.remove('hidden');
+  commentsLoader.classList.remove('hidden');
+
+  // Подготовка комментариев
+  commentsToShow = Array.isArray(photo.comments) ? photo.comments : [];
+  renderedCommentsCount = 0;
   socialComments.innerHTML = '';
-  if (Array.isArray(photo.comments) && photo.comments.length > 0) {
-    const fragment = document.createDocumentFragment();
-    photo.comments.forEach((c) => {
-      // если структура комментария чуть другая — поддерживаем поля avatar/name/message
-      const commentData = {
-        avatar: c.avatar || c.avatarUrl || '',
-        name: c.name || c.author || 'Пользователь',
-        message: c.message || c.text || ''
-      };
-      fragment.appendChild(createCommentElement(commentData));
-    });
-    socialComments.appendChild(fragment);
+
+  if (commentsToShow.length > 0) {
+    renderNextComments();
+  } else {
+    commentCountBlock.textContent = 'Нет комментариев';
+    commentsLoader.classList.add('hidden');
   }
 
-  // Скрываем блок счётчика комментариев и кнопку загрузки (по условию)
-  if (commentCountBlock) commentCountBlock.classList.add('hidden');
-  if (commentsLoader) commentsLoader.classList.add('hidden');
+  commentsLoader.addEventListener('click', onCommentsLoaderClick);
 
-  // Показать окно и запретить скролл фона
+  // Показать окно
   bigPicture.classList.remove('hidden');
   body.classList.add('modal-open');
 
-  // Обработчик закрытия по Escape
+  // Закрытие по Escape
   onDocumentKeydown = (evt) => {
     if (evt.key === 'Escape' || evt.key === 'Esc') {
       evt.preventDefault();
@@ -100,7 +141,7 @@ export const openBigPicture = (photo, thumbnailElement) => {
   };
   document.addEventListener('keydown', onDocumentKeydown);
 
-  // Закрытие по кнопке (иконке)
+  // Закрытие по кнопке
   if (closeButton) {
     closeButton.addEventListener('click', closeBigPicture);
   }
@@ -110,13 +151,13 @@ export const openBigPicture = (photo, thumbnailElement) => {
  * Закрывает окно полноразмерного просмотра
  */
 export const closeBigPicture = () => {
-  // --- убрать подсветку ---
+  // --- убрать подсветку миниатюры ---
   if (activeThumbnail) {
     activeThumbnail.classList.remove('picture--active');
     activeThumbnail = null;
   }
 
-  // Снять слушатели
+  // Удаление обработчиков
   if (onDocumentKeydown) {
     document.removeEventListener('keydown', onDocumentKeydown);
     onDocumentKeydown = null;
@@ -125,14 +166,12 @@ export const closeBigPicture = () => {
     closeButton.removeEventListener('click', closeBigPicture);
   }
 
-  // Скрыть модалку и восстановить скролл
+  commentsLoader.removeEventListener('click', onCommentsLoaderClick);
+
+  // Скрыть модалку
   bigPicture.classList.add('hidden');
   body.classList.remove('modal-open');
 
-  // Очистить комментарии (на случай следующего открытия)
+  // Очистить комментарии
   socialComments.innerHTML = '';
-
-  // Убрать скрытие с блоков на будущее (чтобы не сломать интерфейс в других заданиях)
-  if (commentCountBlock) commentCountBlock.classList.remove('hidden');
-  if (commentsLoader) commentsLoader.classList.remove('hidden');
 };
