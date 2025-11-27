@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const descriptionInput = form.querySelector('.text__description');
   const submitButton = form.querySelector('#upload-submit');
 
-  // Функция для скрытия формы редактирования
+  // Объявляем функции в правильном порядке зависимостей
   const hideEditForm = () => {
     uploadOverlay.classList.add('hidden');
     body.classList.remove('modal-open');
@@ -24,7 +24,6 @@ document.addEventListener('DOMContentLoaded', () => {
     form.reset();
   };
 
-  // Обработчик закрытия по Esc
   const onDocumentKeydown = (evt) => {
     if (evt.key === 'Escape' && !evt.target.matches('.text__hashtags, .text__description')) {
       evt.preventDefault();
@@ -32,14 +31,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
-  // Функция для показа формы редактирования
   const showEditForm = () => {
     uploadOverlay.classList.remove('hidden');
     body.classList.add('modal-open');
     document.addEventListener('keydown', onDocumentKeydown);
   };
 
-  // Валидация хэш-тегов
   const validateHashtags = (value) => {
     if (!value.trim()) {
       return true;
@@ -66,32 +63,8 @@ document.addEventListener('DOMContentLoaded', () => {
     return true;
   };
 
-  // Валидация комментария
   const validateDescription = (value) => value.length <= 140;
 
-  // Создание экземпляра Pristine (только если Pristine доступен)
-  let pristine;
-  if (typeof Pristine !== 'undefined') {
-    pristine = new Pristine(form, {
-      classTo: 'img-upload__field-wrapper',
-      errorTextParent: 'img-upload__field-wrapper',
-      errorTextClass: 'img-upload__field-wrapper--error'
-    });
-
-    pristine.addValidator(
-      hashtagsInput,
-      validateHashtags,
-      'Неправильный формат хэш-тегов. Хэш-теги должны начинаться с #, содержать только буквы и цифры, быть уникальными и не более 5 штук'
-    );
-
-    pristine.addValidator(
-      descriptionInput,
-      validateDescription,
-      'Комментарий не может быть длиннее 140 символов'
-    );
-  }
-
-  // Функция ручной валидации (резервная)
   const validateFormManually = () => {
     const description = descriptionInput.value.trim();
     if (description.length > 140) {
@@ -121,6 +94,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
     return true;
   };
+
+  // Создание экземпляра Pristine (только если Pristine доступен)
+  let pristine;
+  if (typeof Pristine !== 'undefined') {
+    pristine = new Pristine(form, {
+      classTo: 'img-upload__field-wrapper',
+      errorTextParent: 'img-upload__field-wrapper',
+      errorTextClass: 'img-upload__field-wrapper--error'
+    });
+
+    pristine.addValidator(
+      hashtagsInput,
+      validateHashtags,
+      'Неправильный формат хэш-тегов. Хэш-теги должны начинаться с #, содержать только буквы и цифры, быть уникальными и не более 5 штук'
+    );
+
+    pristine.addValidator(
+      descriptionInput,
+      validateDescription,
+      'Комментарий не может быть длиннее 140 символов'
+    );
+  }
 
   // Обработчики событий
   uploadFileInput.addEventListener('change', () => {
