@@ -1400,3 +1400,10 @@ main {
   outline: 3px solid #fce26a;
   border-radius: 4px;
 }
+
+.count-badge {
+  background: #ffd54f;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 600;
+}
