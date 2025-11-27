@@ -1,5 +1,6 @@
 // Модуль для отрисовки миниатюр фотографий
 import { photos } from './main.js';
+import { openBigPicture } from './big-picture.js';
 
 // Находим шаблон и контейнер для миниатюр
 const pictureTemplate = document.querySelector('#picture').content.querySelector('.picture');
@@ -15,11 +16,27 @@ const createThumbnail = (photoData) => {
   // Заполняем данные
   image.src = photoData.url;
   image.alt = photoData.description;
-  comments.textContent = photoData.comments.length;
-  likes.textContent = photoData.likes;
+  comments.textContent = String(photoData.comments.length);
+  likes.textContent = String(photoData.likes);
 
   // Добавляем data-атрибут для идентификации фотографии
-  thumbnail.dataset.photoId = photoData.id;
+  thumbnail.dataset.photoId = String(photoData.id);
+
+  // Открытие полноэкранного просмотра по клику
+  thumbnail.addEventListener('click', (evt) => {
+    evt.preventDefault();
+    openBigPicture(photoData, thumbnail);
+  });
+
+
+  // Также поддержим открытие при нажатии Enter, если миниатюра в фокусе
+  thumbnail.addEventListener('keydown', (evt) => {
+    if (evt.key === 'Enter') {
+      evt.preventDefault();
+      openBigPicture(photoData, thumbnail);
+    }
+  });
+
 
   return thumbnail;
 };

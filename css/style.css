@@ -1395,3 +1395,8 @@ main {
 .hidden {
   display: none;
 }
+
+.picture--active {
+  outline: 3px solid #fce26a;
+  border-radius: 4px;
+}
