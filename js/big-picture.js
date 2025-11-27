@@ -84,6 +84,38 @@ const onCommentsLoaderClick = () => {
   renderNextComments();
 };
 
+
+
+/**
+ * Закрывает окно полноразмерного просмотра
+ */
+export const closeBigPicture = () => {
+  // --- убрать подсветку миниатюры ---
+  if (activeThumbnail) {
+    activeThumbnail.classList.remove('picture--active');
+    activeThumbnail = null;
+  }
+
+  // Удаление обработчиков
+  if (onDocumentKeydown) {
+    document.removeEventListener('keydown', onDocumentKeydown);
+    onDocumentKeydown = null;
+  }
+  if (closeButton) {
+    closeButton.removeEventListener('click', closeBigPicture);
+  }
+
+  commentsLoader.removeEventListener('click', onCommentsLoaderClick);
+
+  // Скрыть модалку
+  bigPicture.classList.add('hidden');
+  body.classList.remove('modal-open');
+
+  // Очистить комментарии
+  socialComments.innerHTML = '';
+};
+
+
 /**
  * Открывает окно полноразмерного просмотра с данными photo
  * @param {Object} photo
@@ -126,6 +158,7 @@ export const openBigPicture = (photo, thumbnailElement) => {
     commentsLoader.classList.add('hidden');
   }
 
+
   commentsLoader.addEventListener('click', onCommentsLoaderClick);
 
   // Показать окно
@@ -147,31 +180,4 @@ export const openBigPicture = (photo, thumbnailElement) => {
   }
 };
 
-/**
- * Закрывает окно полноразмерного просмотра
- */
-export const closeBigPicture = () => {
-  // --- убрать подсветку миниатюры ---
-  if (activeThumbnail) {
-    activeThumbnail.classList.remove('picture--active');
-    activeThumbnail = null;
-  }
 
-  // Удаление обработчиков
-  if (onDocumentKeydown) {
-    document.removeEventListener('keydown', onDocumentKeydown);
-    onDocumentKeydown = null;
-  }
-  if (closeButton) {
-    closeButton.removeEventListener('click', closeBigPicture);
-  }
-
-  commentsLoader.removeEventListener('click', onCommentsLoaderClick);
-
-  // Скрыть модалку
-  bigPicture.classList.add('hidden');
-  body.classList.remove('modal-open');
-
-  // Очистить комментарии
-  socialComments.innerHTML = '';
-};
