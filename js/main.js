@@ -1,5 +1,7 @@
+// main.js
 import { generatePhotos } from './generate.js';
 import { renderThumbnails } from './thumbnail.js';
+import './form.js'; // Подключаем модуль формы
 
 // Создаем и экспортируем массив фотографий
 const photos = generatePhotos();
