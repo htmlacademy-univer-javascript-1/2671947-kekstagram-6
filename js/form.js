@@ -1,4 +1,3 @@
-// form.js
 document.addEventListener('DOMContentLoaded', () => {
   const form = document.querySelector('#upload-select-image');
   const uploadFileInput = document.querySelector('#upload-file');
@@ -163,24 +162,27 @@ document.addEventListener('DOMContentLoaded', () => {
   form.addEventListener('submit', (evt) => {
     // НЕ предотвращаем отправку по умолчанию - форма отправится стандартным способом
 
-    console.log('✅ Обработчик submit вызван');
-    console.log('📝 Данные формы:');
-    console.log('Хэш-теги:', hashtagsInput?.value);
-    console.log('Комментарий:', descriptionInput?.value);
+    console.log('Обработчик submit вызван');
+    console.log('Данные формы:');
+
+    const hashtagsValue = hashtagsInput ? hashtagsInput.value : '';
+    const descriptionValue = descriptionInput ? descriptionInput.value : '';
+
+    console.log('Хэш-теги:', hashtagsValue);
+    console.log('Комментарий:', descriptionValue);
 
     // Проверяем валидность формы
     let isValid = true;
     if (pristine) {
       isValid = pristine.validate();
-      console.log('✅ Pristine валидация:', isValid);
+      console.log('Pristine валидация:', isValid);
     } else {
-      // Резервная валидация если Pristine не доступен
       isValid = validateFormManually();
-      console.log('✅ Ручная валидация:', isValid);
+      console.log('Ручная валидация:', isValid);
     }
 
     if (!isValid) {
-      console.log('❌ Форма не валидна, отправка отменена');
+      console.log('Форма не валидна, отправка отменена');
       evt.preventDefault(); // ТОЛЬКО ЗДЕСЬ предотвращаем отправку невалидной формы
       return;
     }
@@ -191,24 +193,20 @@ document.addEventListener('DOMContentLoaded', () => {
       submitButton.textContent = 'Отправка...';
     }
 
-    console.log('📤 Отправляем данные на сервер стандартным способом...');
+    console.log('Отправляем данные на сервер стандартным способом...');
     console.log('После отправки браузер перейдет на:', form.action);
 
-    // Форма отправится стандартным способом, перейдя на страницу сервера
-    // Браузер автоматически выполнит POST запрос с multipart/form-data
 
-    // На всякий случай добавляем таймаут для разблокировки кнопки
-    // (если страница не перезагрузится по какой-то причине)
+    // (если страница не перезагрузится)
     setTimeout(() => {
       if (submitButton && submitButton.disabled) {
         submitButton.disabled = false;
         submitButton.textContent = 'Опубликовать';
-        console.log('⚠️ Кнопка разблокирована по таймауту (страница не перезагрузилась)');
+        console.log('Кнопка разблокирована по таймауту (страница не перезагрузилась)');
       }
     }, 5000);
   });
 
-  // Функция для показа сообщения об успехе (не используется при стандартной отправке)
   const showSuccessMessage = () => {
     const successTemplate = document.querySelector('#success');
     if (successTemplate) {
@@ -245,7 +243,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
-  // Функция для показа сообщения об ошибке (не используется при стандартной отправке)
+
   const showErrorMessage = () => {
     const errorTemplate = document.querySelector('#error');
     if (errorTemplate) {
@@ -282,5 +280,5 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
-  console.log('✅ Модуль form.js загружен и инициализирован');
+  console.log('Модуль form.js загружен и инициализирован');
 });
