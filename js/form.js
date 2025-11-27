@@ -16,19 +16,19 @@ document.addEventListener('DOMContentLoaded', () => {
   const descriptionInput = form.querySelector('.text__description');
   const submitButton = form.querySelector('#upload-submit');
 
-  // Объявляем функции в правильном порядке зависимостей
+  // Объявляем onDocumentKeydown как function declaration в начале
+  function onDocumentKeydown(evt) {
+    if (evt.key === 'Escape' && !evt.target.matches('.text__hashtags, .text__description')) {
+      evt.preventDefault();
+      hideEditForm();
+    }
+  }
+
   const hideEditForm = () => {
     uploadOverlay.classList.add('hidden');
     body.classList.remove('modal-open');
     document.removeEventListener('keydown', onDocumentKeydown);
     form.reset();
-  };
-
-  const onDocumentKeydown = (evt) => {
-    if (evt.key === 'Escape' && !evt.target.matches('.text__hashtags, .text__description')) {
-      evt.preventDefault();
-      hideEditForm();
-    }
   };
 
   const showEditForm = () => {
