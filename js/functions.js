@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 
 function checkLen(string, maxlen) {
-  return string.lenght <= maxlen;
+  return string.length <= maxlen;
 }
 
 
