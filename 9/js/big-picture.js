@@ -85,6 +85,36 @@ const onCommentsLoaderClick = () => {
 };
 
 /**
+ * Закрывает окно полноразмерного просмотра
+ */
+export const closeBigPicture = () => {
+  // --- убрать подсветку миниатюры ---
+  if (activeThumbnail) {
+    activeThumbnail.classList.remove('picture--active');
+    activeThumbnail = null;
+  }
+
+  // Удаление обработчиков
+  if (onDocumentKeydown) {
+    document.removeEventListener('keydown', onDocumentKeydown);
+    onDocumentKeydown = null;
+  }
+
+  if (closeButton) {
+    closeButton.removeEventListener('click', closeBigPicture);
+  }
+
+  commentsLoader.removeEventListener('click', onCommentsLoaderClick);
+
+  // Скрыть модалку
+  bigPicture.classList.add('hidden');
+  body.classList.remove('modal-open');
+
+  // Очистить комментарии
+  socialComments.innerHTML = '';
+};
+
+/**
  * Открывает окно полноразмерного просмотра с данными photo
  * @param {Object} photo
  * @param {number} photo.id
@@ -94,12 +124,15 @@ const onCommentsLoaderClick = () => {
  * @param {Array} photo.comments
  */
 export const openBigPicture = (photo, thumbnailElement) => {
-  if (!photo) return;
+  if (!photo) {
+    return;
+  }
 
   // --- подсветка миниатюры ---
   if (activeThumbnail) {
     activeThumbnail.classList.remove('picture--active');
   }
+
   activeThumbnail = thumbnailElement;
   activeThumbnail.classList.add('picture--active');
 
@@ -139,39 +172,11 @@ export const openBigPicture = (photo, thumbnailElement) => {
       closeBigPicture();
     }
   };
+
   document.addEventListener('keydown', onDocumentKeydown);
 
   // Закрытие по кнопке
   if (closeButton) {
     closeButton.addEventListener('click', closeBigPicture);
   }
-};
-
-/**
- * Закрывает окно полноразмерного просмотра
- */
-export const closeBigPicture = () => {
-  // --- убрать подсветку миниатюры ---
-  if (activeThumbnail) {
-    activeThumbnail.classList.remove('picture--active');
-    activeThumbnail = null;
-  }
-
-  // Удаление обработчиков
-  if (onDocumentKeydown) {
-    document.removeEventListener('keydown', onDocumentKeydown);
-    onDocumentKeydown = null;
-  }
-  if (closeButton) {
-    closeButton.removeEventListener('click', closeBigPicture);
-  }
-
-  commentsLoader.removeEventListener('click', onCommentsLoaderClick);
-
-  // Скрыть модалку
-  bigPicture.classList.add('hidden');
-  body.classList.remove('modal-open');
-
-  // Очистить комментарии
-  socialComments.innerHTML = '';
 };
