@@ -1,4 +1,3 @@
-// Модуль полноэкранного просмотра фотографии
 const body = document.body;
 const bigPicture = document.querySelector('.big-picture');
 const bigPictureImgContainer = bigPicture.querySelector('.big-picture__img');
@@ -40,9 +39,8 @@ const createCommentElement = (comment) => {
 let onDocumentKeydown;
 let activeThumbnail = null;
 
-// -------------------------
 // Пагинация комментариев
-// -------------------------
+
 const COMMENTS_PORTION = 5;
 let commentsToShow = [];
 let renderedCommentsCount = 0;
@@ -128,7 +126,6 @@ export const openBigPicture = (photo, thumbnailElement) => {
     return;
   }
 
-  // --- подсветка миниатюры ---
   if (activeThumbnail) {
     activeThumbnail.classList.remove('picture--active');
   }
