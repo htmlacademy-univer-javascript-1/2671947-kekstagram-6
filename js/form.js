@@ -20,7 +20,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const previewImage = form.querySelector('.img-upload__preview img');
 
   // Эффекты
-  const effectsList = form.querySelector('.effects__list');
   const effectLevelField = form.querySelector('.img-upload__effect-level');
   const effectLevelValue = form.querySelector('.effect-level__value');
   const effectSliderNode = form.querySelector('.effect-level__slider');
@@ -32,23 +31,18 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!value.trim()) {
       return true;
     }
-
     const hashtags = value.trim().split(/\s+/);
-
     if (hashtags.length > 5) {
       return false;
     }
-
     const hashtagRegex = /^#[a-zа-яё0-9]{1,19}$/i;
-
     for (const hashtag of hashtags) {
       if (!hashtagRegex.test(hashtag)) {
         return false;
       }
     }
-
     const lower = hashtags.map((h) => h.toLowerCase());
-    return new Set(lower).size === hashtags.length;
+    return new Set(lower).size === lower.length;
   };
 
   const validateDescription = (value) => value.length <= 140;
@@ -90,11 +84,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const applyScale = (percent) => {
     const clamped = Math.min(SCALE_MAX, Math.max(SCALE_MIN, percent));
-
     if (previewImage) {
       previewImage.style.transform = `scale(${clamped / 100})`;
     }
-
     if (scaleValueInput) {
       scaleValueInput.value = `${clamped}%`;
     }
@@ -118,7 +110,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const initScale = () => {
     const cur = parseScale(scaleValueInput.value);
-
     if (!scaleValueInput.value || isNaN(cur)) {
       scaleValueInput.value = `${SCALE_DEFAULT}%`;
       applyScale(SCALE_DEFAULT);
@@ -130,7 +121,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // --- ЭФФЕКТЫ ---
   const EFFECT_CONFIG = {
     none: { visible: false },
-
     chrome: {
       range: { min: 0, max: 1 },
       step: 0.1,
@@ -140,7 +130,6 @@ document.addEventListener('DOMContentLoaded', () => {
       },
       visible: true
     },
-
     sepia: {
       range: { min: 0, max: 1 },
       step: 0.1,
@@ -150,7 +139,6 @@ document.addEventListener('DOMContentLoaded', () => {
       },
       visible: true
     },
-
     marvin: {
       range: { min: 0, max: 100 },
       step: 1,
@@ -160,7 +148,6 @@ document.addEventListener('DOMContentLoaded', () => {
       },
       visible: true
     },
-
     phobos: {
       range: { min: 0, max: 3 },
       step: 0.1,
@@ -170,7 +157,6 @@ document.addEventListener('DOMContentLoaded', () => {
       },
       visible: true
     },
-
     heat: {
       range: { min: 1, max: 3 },
       step: 0.1,
@@ -210,34 +196,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
       effectSliderNode.noUiSlider.on('update', (values, handle) => {
         const v = parseFloat(values[handle]);
-
         if (effectLevelValue) {
           const step = config.step;
-          let recorded = v;
-
-          if (step >= 1) {
-            recorded = Math.round(v);
-          } else {
-            recorded = Math.round(v * 10) / 10;
-          }
-
+          const recorded = step >= 1 ? Math.round(v) : Math.round(v * 10) / 10;
           effectLevelValue.value = recorded;
         }
-
         if (currentEffect !== 'none') {
           EFFECT_CONFIG[currentEffect].apply(parseFloat(v));
         }
       });
     } else {
       effectSliderNode.noUiSlider.updateOptions(
-        {
-          range: config.range,
-          step: config.step,
-          start: config.start
-        },
+        { range: config.range, step: config.step, start: config.start },
         false
       );
-
       try {
         effectSliderNode.noUiSlider.set(config.start);
       } catch (err) {
@@ -258,18 +230,11 @@ document.addEventListener('DOMContentLoaded', () => {
       if (effectLevelField) {
         effectLevelField.classList.remove('hidden');
       }
-
       createOrUpdateSlider(cfg);
-
       if (effectLevelValue) {
-        const val =
-        cfg.step >= 1
-        ? Math.round(cfg.start)
-        : Math.round(cfg.start * 10) / 10;
-
+        const val = cfg.step >= 1 ? Math.round(cfg.start) : Math.round(cfg.start * 10) / 10;
         effectLevelValue.value = val;
       }
-
       if (previewImage) {
         cfg.apply(cfg.start);
       }
@@ -277,11 +242,9 @@ document.addEventListener('DOMContentLoaded', () => {
       if (effectLevelField) {
         effectLevelField.classList.add('hidden');
       }
-
       if (previewImage) {
         previewImage.style.filter = '';
       }
-
       if (effectLevelValue) {
         effectLevelValue.value = '';
       }
@@ -301,7 +264,6 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   // --- Показ/скрытие формы ---
-
   function hideEditForm() {
     uploadOverlay.classList.add('hidden');
     body.classList.remove('modal-open');
@@ -314,22 +276,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     applyScale(SCALE_DEFAULT);
 
-    const noneRadio = form.querySelector(
-      'input[name="effect"][value="none"]'
-    );
-
+    const noneRadio = form.querySelector('input[name="effect"][value="none"]');
     if (noneRadio) {
       noneRadio.checked = true;
     }
-
     setEffect('none');
   }
 
   function onDocumentKeydown(evt) {
-    if (
-    evt.key === 'Escape' &&
-    !evt.target.matches('.text__hashtags, .text__description')
-    ) {
+    if (evt.key === 'Escape' && !evt.target.matches('.text__hashtags, .text__description')) {
       evt.preventDefault();
       hideEditForm();
     }
@@ -339,9 +294,7 @@ document.addEventListener('DOMContentLoaded', () => {
     uploadOverlay.classList.remove('hidden');
     body.classList.add('modal-open');
     document.addEventListener('keydown', onDocumentKeydown);
-
     initScale();
-
     const cur = form.querySelector('input[name="effect"]:checked');
     setEffect(cur ? cur.value : 'none');
   }
@@ -374,20 +327,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
   form.addEventListener('submit', (evt) => {
     let isValid = false;
-
     if (pristine) {
       isValid = pristine.validate();
     } else {
-      isValid =
-      validateHashtags(hashtagsInput.value) &&
-      validateDescription(descriptionInput.value);
+      isValid = validateHashtags(hashtagsInput.value) && validateDescription(descriptionInput.value);
     }
-
     if (!isValid) {
       evt.preventDefault();
       return;
     }
-
     if (submitButton) {
       submitButton.disabled = true;
       submitButton.textContent = 'Отправка...';
@@ -404,4 +352,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   initScale();
   setEffect('none');
+
+  // обработка переключения эффектов
+  form.querySelectorAll('input[name="effect"]').forEach((input) => {
+    input.addEventListener('change', () => {
+      setEffect(input.value);
+    });
+  });
 });
