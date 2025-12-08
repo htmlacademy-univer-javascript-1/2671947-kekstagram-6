@@ -6,7 +6,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const body = document.body;
 
   if (!form || !uploadFileInput || !uploadOverlay) {
-    console.error('Не найдены необходимые элементы формы');
     return;
   }
 
@@ -14,7 +13,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const descriptionInput = form.querySelector('.text__description');
   const submitButton = form.querySelector('#upload-submit');
 
-  // Объявляем hideEditForm ДО её использования
+  // Объявляем переменную pristine в начале
+  let pristine = null;
+
+  // Объявляем hideEditForm
   const hideEditForm = () => {
     uploadOverlay.classList.add('hidden');
     body.classList.remove('modal-open');
@@ -27,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
-  // Объявляем showEditForm ДО её использования
+  // Объявляем showEditForm
   const showEditForm = () => {
     uploadOverlay.classList.remove('hidden');
     body.classList.add('modal-open');
@@ -45,43 +47,33 @@ document.addEventListener('DOMContentLoaded', () => {
   // Функции валидации
   const validateHashtags = (value) => {
     if (!value.trim()) {
-      return true; // Пустое поле - валидно
+      return true;
     }
 
     const hashtags = value.trim().split(/\s+/);
 
-    // Проверка количества
     if (hashtags.length > 5) {
       return false;
     }
 
-    // Регулярное выражение для проверки формата
     const hashtagRegex = /^#[a-zа-яё0-9]{1,19}$/i;
 
-    // Проверка каждого хештега
     for (const hashtag of hashtags) {
       if (!hashtagRegex.test(hashtag)) {
         return false;
       }
     }
 
-    // Проверка уникальности (без учета регистра)
-    const lowerCaseHashtags = hashtags.map(tag => tag.toLowerCase());
+    const lowerCaseHashtags = hashtags.map((tag) => tag.toLowerCase());
     const uniqueHashtags = new Set(lowerCaseHashtags);
 
     return uniqueHashtags.size === hashtags.length;
   };
 
-  const validateDescription = (value) => {
-    return value.length <= 140;
-  };
+  const validateDescription = (value) => value.length <= 140;
 
   // Инициализация Pristine
-  let pristine = null;
-
   if (typeof window.Pristine !== 'undefined') {
-    console.log('Pristine доступен');
-
     pristine = new Pristine(form, {
       classTo: 'img-upload__field-wrapper',
       errorTextParent: 'img-upload__field-wrapper',
@@ -89,28 +81,22 @@ document.addEventListener('DOMContentLoaded', () => {
       errorTextTag: 'div'
     });
 
-    // Валидатор для хештегов
     pristine.addValidator(
       hashtagsInput,
       validateHashtags,
-      'Неправильный формат хештегов. Хештеги должны:<br>' +
-      '• Начинаться с #<br>' +
-      '• Содержать только буквы и цифры<br>' +
-      '• Иметь длину от 1 до 19 символов после #<br>' +
-      '• Быть уникальными (регистр не учитывается)<br>' +
+      'Неправильный формат хештегов. Хештеги должны:' +
+      '• Начинаться с #' +
+      '• Содержать только буквы и цифры' +
+      '• Иметь длину от 1 до 19 символов после #' +
+      '• Быть уникальными (регистр не учитывается)' +
       '• Максимум 5 хештегов'
     );
 
-    // Валидатор для описания
     pristine.addValidator(
       descriptionInput,
       validateDescription,
       'Максимальная длина комментария - 140 символов'
     );
-
-    console.log('Pristine инициализирован');
-  } else {
-    console.warn('Pristine не найден. Используется ручная валидация.');
   }
 
   // Обработчики событий
@@ -142,38 +128,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Обработчик отправки формы
   form.addEventListener('submit', (evt) => {
-    console.log('Форма отправляется...');
-
     let isValid = false;
 
     if (pristine) {
-      console.log('Используется Pristine для валидации');
       isValid = pristine.validate();
-      console.log('Pristine валидация:', isValid);
     } else {
-      console.log('Используется ручная валидация');
-      // Ручная валидация
       const hashtagsValid = validateHashtags(hashtagsInput.value);
       const descriptionValid = validateDescription(descriptionInput.value);
       isValid = hashtagsValid && descriptionValid;
-      console.log('Хештеги валидны:', hashtagsValid);
-      console.log('Описание валидно:', descriptionValid);
     }
 
     if (!isValid) {
-      console.log('Форма невалидна, отправка отменена');
       evt.preventDefault();
-
-      // Показываем ошибки
-      if (pristine) {
-        console.log('Ошибки Pristine:');
-        console.log(pristine.getErrors());
-      }
-
       return;
     }
-
-    console.log('Форма валидна, отправка продолжается');
 
     // Блокировка кнопки
     if (submitButton) {
@@ -186,8 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (hashtagsInput) {
     hashtagsInput.addEventListener('input', () => {
       if (pristine) {
-        const isValid = pristine.validate(hashtagsInput);
-        console.log('Валидация хештегов в реальном времени:', isValid);
+        pristine.validate(hashtagsInput);
       }
     });
   }
