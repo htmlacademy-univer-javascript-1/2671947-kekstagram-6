@@ -18,6 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const scaleBiggerBtn = form.querySelector('.scale__control--bigger');
   const scaleValueInput = form.querySelector('.scale__control--value');
   const previewImage = form.querySelector('.img-upload__preview img');
+  const defaultPreviewSrc = previewImage.src; // сохраняем дефолтное изображение
 
   // Эффекты
   const effectLevelField = form.querySelector('.img-upload__effect-level');
@@ -281,6 +282,9 @@ document.addEventListener('DOMContentLoaded', () => {
       noneRadio.checked = true;
     }
     setEffect('none');
+
+    // возвращаем дефолтное изображение
+    previewImage.src = defaultPreviewSrc;
   }
 
   function onDocumentKeydown(evt) {
@@ -299,8 +303,18 @@ document.addEventListener('DOMContentLoaded', () => {
     setEffect(cur ? cur.value : 'none');
   }
 
-  // обработчики
-  uploadFileInput.addEventListener('change', showEditForm);
+  // обработка выбора файла и показ превью
+  uploadFileInput.addEventListener('change', (evt) => {
+    const file = evt.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        previewImage.src = e.target.result; // показываем выбранное фото
+      };
+      reader.readAsDataURL(file);
+    }
+    showEditForm();
+  });
 
   if (uploadCancel) {
     uploadCancel.addEventListener('click', (e) => {
