@@ -1,15 +1,12 @@
-// main.js
-import { generatePhotos } from './generate.js';
 import { renderThumbnails } from './thumbnail.js';
-import './form.js'; // Подключаем модуль формы
+import { getData } from './api.js';
+import { showAlert } from './message.js';
+import './form.js';
 
-// Создаем и экспортируем массив фотографий
-const photos = generatePhotos();
-
-// Отрисовываем миниатюры после загрузки DOM
-document.addEventListener('DOMContentLoaded', () => {
-  renderThumbnails();
+getData()
+  .then((photos) => {
+  renderThumbnails(photos);
+})
+  .catch((err) => {
+  showAlert(err.message);
 });
-
-// Экспортируем данные для использования в других модулях
-export { photos };
