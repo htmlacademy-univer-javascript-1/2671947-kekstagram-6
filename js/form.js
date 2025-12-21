@@ -37,7 +37,6 @@ let pristine = null;
 let currentEffect = 'none';
 let sliderCreated = false;
 
-// --- ВАЛИДАЦИЯ (ТВОЙ ТЕКСТ) ---
 const validateHashtags = (value) => {
   if (!value.trim()) {
     return true;
