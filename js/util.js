@@ -17,3 +17,12 @@ export const generateUniqueIds = (count) => {
   }
   return Array.from(ids);
 };
+
+// util.js
+export const debounce = (callback, timeoutDelay = 500) => {
+  let timeoutId;
+  return (...rest) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => callback(...rest), timeoutDelay);
+  };
+};
