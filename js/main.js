@@ -6,9 +6,9 @@ import './form.js';
 
 getData()
   .then((photos) => {
-  renderThumbnails(photos);
-  initFilter(photos);
-})
+    renderThumbnails(photos);
+    initFilter(photos);
+  })
   .catch((err) => {
-  showAlert(err.message);
-});
+    showAlert(err.message);
+  });

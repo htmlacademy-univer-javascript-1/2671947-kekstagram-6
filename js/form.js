@@ -191,15 +191,15 @@ form.addEventListener('submit', (evt) => {
     blockSubmitButton();
     sendData(new FormData(evt.target))
       .then(() => {
-      hideEditForm();
-      showSuccessMessage();
-    })
+        hideEditForm();
+        showSuccessMessage();
+      })
       .catch(() => {
-      showErrorMessage();
-    })
+        showErrorMessage();
+      })
       .finally(() => {
-      unblockSubmitButton();
-    });
+        unblockSubmitButton();
+      });
   }
 });
 
