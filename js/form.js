@@ -197,7 +197,9 @@ form.addEventListener('submit', (evt) => {
       .catch(() => {
       showErrorMessage();
     })
-      .finally(unblockSubmitButton);
+      .finally(() => {
+      unblockSubmitButton();
+    });
   }
 });
 
