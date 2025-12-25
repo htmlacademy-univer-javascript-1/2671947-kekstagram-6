@@ -1,3 +1,9 @@
+import { isEscapeKey } from './util.js';
+
+// Сначала константы
+const COMMENTS_PORTION = 5;
+
+// Затем поиск элементов
 const body = document.body;
 const bigPicture = document.querySelector('.big-picture');
 const bigPictureImgContainer = bigPicture.querySelector('.big-picture__img');
@@ -9,6 +15,12 @@ const socialCaption = bigPicture.querySelector('.social__caption');
 const commentCountBlock = bigPicture.querySelector('.social__comment-count');
 const commentsLoader = bigPicture.querySelector('.comments-loader');
 const closeButton = bigPicture.querySelector('#picture-cancel');
+
+let onDocumentKeydown;
+let activeThumbnail = null;
+
+let commentsToShow = [];
+let renderedCommentsCount = 0;
 
 /**
  * Создаёт DOM-элемент комментария
@@ -34,13 +46,6 @@ const createCommentElement = (comment) => {
   return li;
 };
 
-let onDocumentKeydown;
-let activeThumbnail = null;
-
-const COMMENTS_PORTION = 5;
-let commentsToShow = [];
-let renderedCommentsCount = 0;
-
 const renderNextComments = () => {
   const next = commentsToShow.slice(
     renderedCommentsCount,
@@ -50,14 +55,12 @@ const renderNextComments = () => {
   const fragment = document.createDocumentFragment();
 
   next.forEach((c) => {
-    // Сервер присылает avatar, name, message - используем их напрямую
     fragment.appendChild(createCommentElement(c));
   });
 
   socialComments.appendChild(fragment);
   renderedCommentsCount += next.length;
 
-  // ТВОЙ СТИЛЬ: Обновление счётчика с выделением фона
   commentCountBlock.innerHTML =
   `<span class="count-badge">Вы лицезреете ${renderedCommentsCount} из ${commentsToShow.length} комментариев</span>`;
 
@@ -83,7 +86,6 @@ export const closeBigPicture = () => {
     onDocumentKeydown = null;
   }
 
-  // Важно: удаляем обработчик пагинации
   commentsLoader.removeEventListener('click', onCommentsLoaderClick);
 
   bigPicture.classList.add('hidden');
@@ -91,13 +93,11 @@ export const closeBigPicture = () => {
   socialComments.innerHTML = '';
 };
 
-// Исправленная функция открытия
 export const openBigPicture = (photo, thumbnailElement = null) => {
   if (!photo) {
     return;
   }
 
-  // ТВОЯ ЛОГИКА: Подсветка активной миниатюры
   if (activeThumbnail) {
     activeThumbnail.classList.remove('picture--active');
   }
@@ -126,12 +126,12 @@ export const openBigPicture = (photo, thumbnailElement = null) => {
   body.classList.add('modal-open');
 
   onDocumentKeydown = (evt) => {
-    if (evt.key === 'Escape' || evt.key === 'Esc') {
+    if (isEscapeKey(evt)) {
       evt.preventDefault();
       closeBigPicture();
     }
   };
 
   document.addEventListener('keydown', onDocumentKeydown);
-  closeButton.onclick = closeBigPicture; // Упрощенное назначение для кнопки закрытия
+  closeButton.onclick = closeBigPicture;
 };

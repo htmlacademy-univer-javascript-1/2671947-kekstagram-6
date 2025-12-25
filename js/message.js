@@ -1,14 +1,15 @@
+import { isEscapeKey } from './util.js';
+
+const ALERT_SHOW_TIME = 5000;
+
 const successMessageTemplate = document.querySelector('#success').content.querySelector('.success');
 const errorMessageTemplate = document.querySelector('#error').content.querySelector('.error');
 const body = document.querySelector('body');
 
-function isEscapeKey(evt) {
-  return evt.key === 'Escape' || evt.key === 'Esc';
-}
-
 function onMessageEscKeydown(evt) {
   if (isEscapeKey(evt)) {
     evt.preventDefault();
+    evt.stopPropagation();
     hideMessage();
   }
 }
@@ -27,11 +28,16 @@ function hideMessage() {
   }
   document.removeEventListener('keydown', onMessageEscKeydown);
   document.removeEventListener('click', onOutsideClick);
-  body.classList.remove('modal-open');
+
+  const uploadOverlay = document.querySelector('.img-upload__overlay');
+  if (!uploadOverlay || uploadOverlay.classList.contains('hidden')) {
+    body.classList.remove('modal-open');
+  }
 }
 
 function showMessage(template, closeButtonClass) {
   const messageElement = template.cloneNode(true);
+  messageElement.style.zIndex = '100';
   document.body.append(messageElement);
 
   const closeButton = messageElement.querySelector(closeButtonClass);
@@ -39,8 +45,8 @@ function showMessage(template, closeButtonClass) {
   closeButton.addEventListener('click', hideMessage);
   document.addEventListener('keydown', onMessageEscKeydown);
   document.addEventListener('click', onOutsideClick);
-  // Note: We don't add 'modal-open' to body here strictly because the form modal is likely already open
-  // and we don't want to mess up scroll locking logic of the underlying form.
+
+  body.classList.add('modal-open');
 }
 
 const showSuccessMessage = () => showMessage(successMessageTemplate, '.success__button');
@@ -65,7 +71,7 @@ const showAlert = (message) => {
 
   setTimeout(() => {
     alertContainer.remove();
-  }, 5000);
+  }, ALERT_SHOW_TIME);
 };
 
 export { showSuccessMessage, showErrorMessage, showAlert };

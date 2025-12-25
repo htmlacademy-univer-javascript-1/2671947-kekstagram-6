@@ -1,6 +1,31 @@
 import { sendData } from './api.js';
 import { showSuccessMessage, showErrorMessage } from './message.js';
+import { isEscapeKey } from './util.js';
 
+// --- КОНСТАНТЫ ---
+const SCALE_STEP = 25;
+const SCALE_MIN = 25;
+const SCALE_MAX = 100;
+const SCALE_DEFAULT = 100;
+
+const MAX_HASHTAGS = 5;
+const MAX_DESCRIPTION_LENGTH = 140;
+
+const SubmitButtonText = {
+  IDLE: 'Опубликовать',
+  SENDING: 'Опубликовываю...'
+};
+
+const EFFECT_CONFIG = {
+  none: { visible: false },
+  chrome: { range: { min: 0, max: 1 }, step: 0.1, start: 1, apply: (v) => `grayscale(${v})`, visible: true },
+  sepia: { range: { min: 0, max: 1 }, step: 0.1, start: 1, apply: (v) => `sepia(${v})`, visible: true },
+  marvin: { range: { min: 0, max: 100 }, step: 1, start: 100, apply: (v) => `invert(${Math.round(v)}%)`, visible: true },
+  phobos: { range: { min: 0, max: 3 }, step: 0.1, start: 3, apply: (v) => `blur(${v.toFixed(1)}px)`, visible: true },
+  heat: { range: { min: 1, max: 3 }, step: 0.1, start: 3, apply: (v) => `brightness(${v.toFixed(1)})`, visible: true }
+};
+
+// --- DOM ЭЛЕМЕНТЫ ---
 const form = document.querySelector('#upload-select-image');
 const uploadFileInput = document.querySelector('#upload-file');
 const uploadOverlay = document.querySelector('.img-upload__overlay');
@@ -23,26 +48,18 @@ const effectLevelField = form.querySelector('.img-upload__effect-level');
 const effectLevelValue = form.querySelector('.effect-level__value');
 const effectSliderNode = form.querySelector('.effect-level__slider');
 
-const SCALE_STEP = 25;
-const SCALE_MIN = 25;
-const SCALE_MAX = 100;
-const SCALE_DEFAULT = 100;
-
-const SubmitButtonText = {
-  IDLE: 'Опубликовать',
-  SENDING: 'Опубликовываю...'
-};
-
+// --- ПЕРЕМЕННЫЕ СОСТОЯНИЯ ---
 let pristine = null;
 let currentEffect = 'none';
 let sliderCreated = false;
 
+// --- ВАЛИДАЦИЯ ---
 const validateHashtags = (value) => {
   if (!value.trim()) {
     return true;
   }
   const hashtags = value.trim().split(/\s+/);
-  if (hashtags.length > 5) {
+  if (hashtags.length > MAX_HASHTAGS) {
     return false;
   }
   const hashtagRegex = /^#[a-zа-яё0-9]{1,19}$/i;
@@ -55,7 +72,7 @@ const validateHashtags = (value) => {
   return new Set(lower).size === lower.length;
 };
 
-const validateDescription = (value) => value.length <= 140;
+const validateDescription = (value) => value.length <= MAX_DESCRIPTION_LENGTH;
 
 const initPristine = () => {
   if (typeof window.Pristine !== 'undefined') {
@@ -100,24 +117,15 @@ const onScaleBiggerClick = (e) => {
 };
 
 // --- ЭФФЕКТЫ ---
-const EFFECT_CONFIG = {
-  none: { visible: false },
-  chrome: { range: { min: 0, max: 1 }, step: 0.1, start: 1, apply: (v) => `grayscale(${v})`, visible: true },
-  sepia: { range: { min: 0, max: 1 }, step: 0.1, start: 1, apply: (v) => `sepia(${v})`, visible: true },
-  marvin: { range: { min: 0, max: 100 }, step: 1, start: 100, apply: (v) => `invert(${Math.round(v)}%)`, visible: true },
-  phobos: { range: { min: 0, max: 3 }, step: 0.1, start: 3, apply: (v) => `blur(${v.toFixed(1)}px)`, visible: true },
-  heat: { range: { min: 1, max: 3 }, step: 0.1, start: 3, apply: (v) => `brightness(${v.toFixed(1)})`, visible: true }
-};
-
 const setEffect = (name) => {
   currentEffect = name;
-  const cfg = EFFECT_CONFIG[name];
+  const effectConfig = EFFECT_CONFIG[name];
 
-  if (cfg.visible) {
+  if (effectConfig.visible) {
     effectLevelField.classList.remove('hidden');
     if (!sliderCreated) {
       window.noUiSlider.create(effectSliderNode, {
-        start: cfg.start, connect: 'lower', range: cfg.range, step: cfg.step
+        start: effectConfig.start, connect: 'lower', range: effectConfig.range, step: effectConfig.step
       });
       sliderCreated = true;
       effectSliderNode.noUiSlider.on('update', (values, handle) => {
@@ -128,10 +136,10 @@ const setEffect = (name) => {
         }
       });
     } else {
-      effectSliderNode.noUiSlider.updateOptions({ range: cfg.range, step: cfg.step, start: cfg.start });
-      effectSliderNode.noUiSlider.set(cfg.start);
+      effectSliderNode.noUiSlider.updateOptions({ range: effectConfig.range, step: effectConfig.step, start: effectConfig.start });
+      effectSliderNode.noUiSlider.set(effectConfig.start);
     }
-    previewImage.style.filter = cfg.apply(cfg.start);
+    previewImage.style.filter = effectConfig.apply(effectConfig.start);
   } else {
     effectLevelField.classList.add('hidden');
     previewImage.style.filter = '';
@@ -143,7 +151,7 @@ const setEffect = (name) => {
 const isErrorMessageOpen = () => Boolean(document.querySelector('.error'));
 
 const onDocumentKeydown = (evt) => {
-  if (evt.key === 'Escape' && !isErrorMessageOpen()) {
+  if (isEscapeKey(evt) && !isErrorMessageOpen()) {
     if (evt.target.matches('.text__hashtags, .text__description')) {
       return;
     }
@@ -190,15 +198,15 @@ form.addEventListener('submit', (evt) => {
     blockSubmitButton();
     sendData(new FormData(evt.target))
       .then(() => {
-        hideEditForm();
-        showSuccessMessage();
-      })
+      hideEditForm();
+      showSuccessMessage();
+    })
       .catch(() => {
-        showErrorMessage();
-      })
+      showErrorMessage();
+    })
       .finally(() => {
-        unblockSubmitButton();
-      });
+      unblockSubmitButton();
+    });
   }
 });
 

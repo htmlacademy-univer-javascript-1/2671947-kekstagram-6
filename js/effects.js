@@ -7,7 +7,18 @@ const effectLevel = document.querySelector('.effect-level');
 const effectLevelValue = document.querySelector('.effect-level__value');
 const effectLevelSlider = document.querySelector('.effect-level__slider');
 
-let currentScale = 100;
+const SCALE_STEP = 25;
+const SCALE_MIN = 25;
+const SCALE_MAX = 100;
+const SCALE_DEFAULT = 100;
+
+const EffectStepConfig = {
+  MARVIN_MAX: 100,
+  PHOBOS_MAX: 3,
+  HEAT_MAX: 3
+};
+
+let currentScale = SCALE_DEFAULT;
 let currentEffect = 'none';
 
 // Функции для масштабирования
@@ -18,14 +29,14 @@ const scaleImage = (value) => {
 };
 
 scaleControlSmaller.addEventListener('click', () => {
-  if (currentScale > 25) {
-    scaleImage(currentScale - 25);
+  if (currentScale > SCALE_MIN) {
+    scaleImage(currentScale - SCALE_STEP);
   }
 });
 
 scaleControlBigger.addEventListener('click', () => {
-  if (currentScale < 100) {
-    scaleImage(currentScale + 25);
+  if (currentScale < SCALE_MAX) {
+    scaleImage(currentScale + SCALE_STEP);
   }
 });
 
@@ -34,9 +45,9 @@ const effects = {
   none: () => '',
   chrome: (value) => `grayscale(${value})`,
   sepia: (value) => `sepia(${value})`,
-  marvin: (value) => `invert(${value * 100}%)`,
-  phobos: (value) => `blur(${value * 3}px)`,
-  heat: (value) => `brightness(${value * 3})`
+  marvin: (value) => `invert(${value * EffectStepConfig.MARVIN_MAX}%)`,
+  phobos: (value) => `blur(${value * EffectStepConfig.PHOBOS_MAX}px)`,
+  heat: (value) => `brightness(${value * EffectStepConfig.HEAT_MAX})`
 };
 
 const updateEffect = (effect, value) => {
@@ -72,20 +83,10 @@ effectsList.addEventListener('change', (evt) => {
       imagePreview.style.filter = '';
     } else {
       effectLevel.classList.remove('hidden');
-      effectLevelSlider.noUiSlider.updateOptions({
-        range: {
-          min: 0,
-          max: 1
-        },
-        start: 1,
-        step: 0.1
-      });
+      if (!effectLevelSlider.noUiSlider) {
+        initSlider();
+      }
+      effectLevelSlider.noUiSlider.set(1);
     }
   }
 });
-
-// Инициализация при загрузке
-export const initEffects = () => {
-  initSlider();
-  effectLevel.classList.add('hidden');
-};
