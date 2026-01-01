@@ -11,11 +11,6 @@ const SCALE_DEFAULT = 100;
 const MAX_HASHTAGS = 5;
 const MAX_DESCRIPTION_LENGTH = 140;
 
-const SubmitButtonText = {
-  IDLE: 'Опубликовать',
-  SENDING: 'Опубликовываю...'
-};
-
 const EFFECT_CONFIG = {
   none: { visible: false },
   chrome: { range: { min: 0, max: 1 }, step: 0.1, start: 1, apply: (v) => `grayscale(${v})`, visible: true },
@@ -23,6 +18,11 @@ const EFFECT_CONFIG = {
   marvin: { range: { min: 0, max: 100 }, step: 1, start: 100, apply: (v) => `invert(${Math.round(v)}%)`, visible: true },
   phobos: { range: { min: 0, max: 3 }, step: 0.1, start: 3, apply: (v) => `blur(${v.toFixed(1)}px)`, visible: true },
   heat: { range: { min: 1, max: 3 }, step: 0.1, start: 3, apply: (v) => `brightness(${v.toFixed(1)})`, visible: true }
+};
+
+const SUBMIT_BUTTON_TEXT = {
+  IDLE: 'Опубликовать',
+  SENDING: 'Опубликовываю...'
 };
 
 // --- DOM ЭЛЕМЕНТЫ ---
@@ -182,12 +182,12 @@ function showEditForm() {
 // --- ОТПРАВКА (POST) ---
 const blockSubmitButton = () => {
   submitButton.disabled = true;
-  submitButton.textContent = SubmitButtonText.SENDING;
+  submitButton.textContent = SUBMIT_BUTTON_TEXT.SENDING;
 };
 
 const unblockSubmitButton = () => {
   submitButton.disabled = false;
-  submitButton.textContent = SubmitButtonText.IDLE;
+  submitButton.textContent = SUBMIT_BUTTON_TEXT.IDLE;
 };
 
 form.addEventListener('submit', (evt) => {
